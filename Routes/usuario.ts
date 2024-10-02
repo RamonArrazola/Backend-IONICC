@@ -1,6 +1,7 @@
 import { Router, Request, Response} from 'express';
 import { Usuario } from '../models/user.model';
 import bcrypt from 'bcrypt';
+import Token from '../classes/token';
 
 const userRoutes = Router();
 
@@ -17,9 +18,18 @@ userRoutes.post('/login', (req: Request, res: Response) => {
         }
 
         if (userDB.comparePass(body.password)) {
+
+            const tokenUsr = Token.getJwtToken({
+                _id: userDB._id,
+                nombre: userDB.nombre,
+                email: userDB.email,
+                avatar: userDB.avatar
+            });
+
             res.json({
+                
                 ok: true,
-                token: 'adjkshfgadhksfghjadsfghjadfghjkls'
+                token: tokenUsr
             });
         } else {
             res.json({
@@ -45,6 +55,7 @@ userRoutes.post('/login', (req: Request, res: Response) => {
 });*/
 
 userRoutes.post('/create', (req: Request, res: Response) =>{
+
     const user = {
         nombre: req.body.nombre,
         email: req.body.email,
@@ -53,9 +64,17 @@ userRoutes.post('/create', (req: Request, res: Response) =>{
     }
 
     Usuario.create(user).then(userDB => {
+
+        const tokenUsr = Token.getJwtToken({
+            _id: userDB._id,
+            nombre: userDB.nombre,
+            email: userDB.email,
+            avatar: userDB.avatar
+        });
+
         res.json({
             ok: true,
-            user: userDB
+            token: tokenUsr
         });
 
     }).catch(err => {

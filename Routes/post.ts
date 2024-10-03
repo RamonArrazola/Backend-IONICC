@@ -14,6 +14,9 @@ PostRoutes.post('/', [verificaToken], (req: any, res: Response) => {
     const body = req.body;
     body.usuario = req.usuario._id;
 
+    const images = fileSys.TempToPost(req.usuario._id);
+    body.img = images;
+
     Post.create( body ).then( async postDB => {
 
         await postDB.populate('usuario', '-password'); //Ya no hay necesidad de usar execPopulate()
@@ -85,6 +88,17 @@ PostRoutes.post('/upload', [verificaToken], async (req: any, res: Response) => {
         ok: true,
         file: file.mimetype
     });
+});
+
+// Servicio para Mostrar Imagenes en FrontEnd
+PostRoutes.get(`/imagen/:userId/:img`, (req: any, res: Response) => {
+    console.log('metodo ejecutado');
+    const userId = req.params.userId;
+    const img = req.params.img;
+
+    const pathImg = fileSys.GetImgUrl(userId, img);
+
+    res.sendFile(pathImg);
 });
 
 export default PostRoutes;
